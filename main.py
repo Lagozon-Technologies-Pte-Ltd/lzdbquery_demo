@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 from state import session_state, session_lock
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware  # Correct import
-from fastapi.middleware.cors import CORSMiddleware
 from azure.storage.blob import BlobServiceClient
 
 load_dotenv()  # Load environment variables from .env file

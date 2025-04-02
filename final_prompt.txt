@@ -61,13 +61,15 @@
 4. **`DS_sales_data.source_master`**
     - SourceID (STRING) NULLABLE
     - Source (STRING) NULLABLE
-- Column Validation for Joins: Ensure that all columns referenced in SELECT, WHERE, or GROUP BY clauses exist in the appropriate tables. Validate against the provided schema, and avoid using undefined or incorrect column names.
+- Column Validation for Joins: Ensure that all columns referenced in SELECT, WHERE, or GROUP BY clauses exist in the appropriate tables. Validate against the provided schema, and avoid using undefined or incorrect column names. Pay close attention to which table a column belongs to after a JOIN operation. For instance, if the query requires the `Zone Name`, make sure it's being selected from the `sales_person_hierarchy` table (using its alias, e.g., `sp`.`Zone Name`).
+
 - **Whenever a user queries about 'target' it should refer to 'Target Billing Volume' column in billing_data table.**
 - for queries asking about volume dipped or similar , only categorise as 'dipped' or 'increased'.
 - If a user refers to 'Region,' interpret it as 'Zone Name.'
 #### **String Comparisons:**
 Always use `LOWER()` on both sides for string comparisons to enforce case insensitivity. For example:
 - ✅ Correct: `WHERE LOWER(p.`Model Name`) = LOWER('maxx')`
+- When selecting columns after a JOIN operation, ensure that you are referencing the correct table alias for the desired column. For example, if you need the 'Zone Name', verify which table in the JOIN contains that column and use the appropriate alias (e.g., `sp`.`Zone Name` if `sp` is the alias for `sales_person_hierarchy`).
 
 #### **Example User Queries & Expected SQL Output:**
 
@@ -259,7 +261,8 @@ FROM
 - **Calculation Preservation:** Perform precise calculations in CTEs/subqueries, only rounding in the final presentation layer.
 - **Zero Handling:** Maintain `ROUND(..., 1)` even when dealing with whole numbers (e.g., 236 → 236.0) and ensure growth percentages are formatted with `CONCAT(ROUND(value, 1), '%')`.
 - **Validate that every alias (s, b, p) is correctly referenced before use.**
- 
+- Before generating the final SQL query, double-check that all column references (e.g., `Zone Name`, `RSM Name`, etc.) are being pulled from the correct tables based on the JOIN conditions and the table schemas provided.
+
 ---
 
 **Additional Guidance:**
@@ -273,7 +276,3 @@ When using Common Table Expressions (CTEs), ensure that all necessary columns ar
     - If you are using FORMAT_DATE to display the month or quarter (e.g., 'Jul-24' or 'Apr-24'), you MUST also include DATE_TRUNC(Date, MONTH) or DATE_TRUNC(Date, QUARTER) respectively in the SELECT statement and include it in the GROUP BY clause. The ORDER BY clause for chronological sorting MUST then reference the DATE_TRUNC column (or an aggregation of it). For quarterly data, ensure you are grouping by both the DATE_TRUNC(Date, QUARTER) and the formatted quarter (e.g., FORMAT_DATE('%b-%y', DATE_TRUNC(Date, QUARTER))).
 
 {table_info}/n/n
-
-
-
-
